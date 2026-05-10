@@ -12,13 +12,8 @@ jobs:
         python-version: 3.7
         pip-install: pyyaml colormath
         cache: pip
-    - uses: actions/setup-node@v6.4.0
-      with:
-        node-version: 22
-    - name: Set up xmllint
-      run: sudo apt-get update -qq && sudo apt-get install -qq --no-install-recommends libxml2-utils
-    - name: Set up CartoCSS
-      run: npm install -g carto@1.2.0
+    - name: Set up xmllint and CartoCSS
+      run: sudo apt-get update -qq && sudo apt-get install -qq --no-install-recommends libxml2-utils nodejs-carto
     - name: Set up shell
       run: set -o pipefail
     - name: Validate YAML files
