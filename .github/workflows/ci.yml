@@ -13,8 +13,8 @@ jobs:
     - uses: actions/checkout@v6.0.2
     - uses: actions/setup-python@v6.2.0
       with:
-        python-version: 3.8
-        pip-install: pyyaml colormath
+        python-version: 3.14
+        pip-install: pyyaml colormath2
     - name: Set up xmllint and CartoCSS
       run: sudo apt-get update -qq && sudo apt-get install -qq --no-install-recommends libxml2-utils node-carto
     - name: Set up shell
