@@ -2,15 +2,14 @@
 
 # Generates a set of highway colors to be stored in road-colors-generated.mss.
 
-from colormath2.color_conversions import convert_color
-from colormath2.color_objects import LabColor, LCHabColor, sRGBColor
-from colormath2.color_diff import delta_e_cie2000
+from colormath.color_conversions import convert_color
+from colormath.color_objects import LabColor, LCHabColor, sRGBColor
+from colormath.color_diff import delta_e_cie2000
 import argparse
 import sys
 import yaml
 
 from collections import OrderedDict, namedtuple
-
 
 class Color:
     """A color in the CIE lch color space."""
@@ -23,25 +22,17 @@ class Color:
 
     def rgb(self):
         rgb = convert_color(self.m_lch, sRGBColor)
-        if (
-            rgb.rgb_r != rgb.clamped_rgb_r
-            or rgb.rgb_g != rgb.clamped_rgb_g
-            or rgb.rgb_b != rgb.clamped_rgb_b
-        ):
+        if (rgb.rgb_r != rgb.clamped_rgb_r or rgb.rgb_g != rgb.clamped_rgb_g or rgb.rgb_b != rgb.clamped_rgb_b):
             raise Exception("Colour {} is outside sRGB".format(self.lch()))
         return rgb.get_rgb_hex()
 
     def rgb_error(self):
-        return delta_e_cie2000(
-            convert_color(self.m_lch, LabColor),
-            convert_color(sRGBColor.new_from_rgb_hex(self.rgb()), LabColor),
-        )
-
+        return delta_e_cie2000(convert_color(self.m_lch, LabColor),
+                               convert_color(sRGBColor.new_from_rgb_hex(self.rgb()), LabColor))
 
 def load_settings():
     """Read the settings from YAML."""
-    return yaml.safe_load(open("road-colors.yaml", "r"))
-
+    return yaml.safe_load(open('road-colors.yaml', 'r'))
 
 def generate_colours(settings, section):
     """Generate colour ranges.
@@ -51,12 +42,12 @@ def generate_colours(settings, section):
     section -- Which section of the settings under 'classes' to use. Typically
                'mss' or 'shields'.
     """
-    road_classes = settings["roads"]
+    road_classes = settings['roads']
     colour_divisions = len(road_classes) - 1
     hues = OrderedDict()
 
-    min_h = settings["hue"][0]
-    max_h = settings["hue"][1]
+    min_h = settings['hue'][0]
+    max_h = settings['hue'][1]
 
     delta_h = (max_h - min_h) / colour_divisions
 
@@ -77,13 +68,11 @@ def generate_colours(settings, section):
     # The higher the road classification, the higher its saturation. Conversely,
     # the roads get brighter towards the lower end of the classification.
 
-    classes = settings["classes"][section]
+    classes = settings['classes'][section]
     for cls, params in sorted(classes.items()):
-        l = params["lightness"]
-        c = params["chroma"]
-        line_colour_infos[cls] = ColourInfo(
-            start_l=l[0], end_l=l[1], start_c=c[0], end_c=c[1]
-        )
+        l = params['lightness']
+        c = params['chroma']
+        line_colour_infos[cls] = ColourInfo(start_l = l[0], end_l = l[1], start_c = c[0], end_c = c[1])
 
     # Colours for the MSS
     colours = OrderedDict()
@@ -102,23 +91,15 @@ def generate_colours(settings, section):
 
     return colours
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Generates road colours")
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="verbose",
-        help="Generates information about colour differences",
-        action="store_true",
-        default=False,
-    )
+    parser = argparse.ArgumentParser(description='Generates road colours')
+    parser.add_argument('-v', '--verbose', dest='verbose', help='Generates information about colour differences', action='store_true', default=False)
     args = parser.parse_args()
 
     settings = load_settings()
-    road_classes = settings["roads"]
+    road_classes = settings['roads']
     colour_divisions = len(road_classes) - 1
-    colours = generate_colours(settings, "mss")
+    colours = generate_colours(settings, 'mss')
 
     # Print a warning about the nature of these definitions.
     print("/* This is generated code, do not change this file manually.          */")
@@ -134,18 +115,7 @@ def main():
                 line = "@{name}-{line_name}: {rgb}; // {lch}, error {delta:.1f}"
             else:
                 line = "@{name}-{line_name}: {rgb};"
-            print(
-                (
-                    line.format(
-                        name=name,
-                        line_name=line_name,
-                        rgb=colour.rgb(),
-                        lch=colour.lch(),
-                        delta=colour.rgb_error(),
-                    )
-                )
-            )
-
+            print((line.format(name = name, line_name=line_name, rgb = colour.rgb(), lch = colour.lch(), delta = colour.rgb_error())))
 
 if __name__ == "__main__":
     main()

@@ -21,9 +21,8 @@
 # You can customize this script by changing the first variables of in the main()
 # function (color_names, file_names, darken, brighten_darken_ratio).
 
-from colormath2.color_objects import LabColor, sRGBColor
-from colormath2.color_conversions import convert_color
-
+from colormath.color_objects import LabColor, sRGBColor
+from colormath.color_conversions import convert_color
 
 # def get_color_value_by_name(variable_name, file_names):
 #
@@ -44,24 +43,16 @@ def get_color_value_by_name(variable_name, file_names):
                 if line.startswith("@" + variable_name + ":"):
                     temp = line.strip("@" + variable_name + ":").split(";")[0].strip()
                     # test if the value length is okay (#abc or #aabbcc)
-                    if (len(temp) == 4) or (len(temp) == 7):
+                    if (len(temp) == 4) or (len(temp)== 7):
                         # remove the first character (#)
                         temp = temp[1:]
                         # expand value like #abc to #aabbcc
                         if len(temp) == 3:
-                            temp = (
-                                temp[0]
-                                + temp[0]
-                                + temp[1]
-                                + temp[1]
-                                + temp[2]
-                                + temp[2]
-                            )
+                            temp = temp[0] + temp [0] + temp [1] + temp [1] + temp [2] + temp [2]
                         # make sure that the content is really a (lowercase) hex value
                         if all(c in set("0123456789abcdef") for c in temp):
                             # if so, return the hex value with a leading "#"
-                            return "#" + temp
-
+                            return ("#" + temp)
 
 # Takes an RGB hex values, applies the indicated Lab lightness change and returns the result as RGB hex value again
 # def change_lightness(base_color_rgb_hex, lightness_change):
@@ -77,50 +68,46 @@ def get_color_value_by_name(variable_name, file_names):
 # us with an out-of-gammut value, it is clipped to make sure to be within the RGB gammut. So the return
 # value is guarantied to be always a valid RGB value.
 def change_lightness(base_color_rgb_hex, lightness_change):
-    base_color_lab = convert_color(
-        sRGBColor.new_from_rgb_hex(base_color_rgb_hex), LabColor
-    )
+    base_color_lab = convert_color(sRGBColor.new_from_rgb_hex(base_color_rgb_hex), LabColor)
     new_color_lab = LabColor(
-        base_color_lab.lab_l
-        + lightness_change,  # This value might be out of gammut and therefor invalid
+        base_color_lab.lab_l + lightness_change, # This value might be out of gammut and therefor invalid
         base_color_lab.lab_a,
         base_color_lab.lab_b,
         base_color_lab.observer,
-        base_color_lab.illuminant,
-    )
-    new_color_rgb = convert_color(
-        new_color_lab, sRGBColor
-    )  # This value might be out of gammut and therefor invalid
+        base_color_lab.illuminant)
+    new_color_rgb = convert_color(new_color_lab, sRGBColor) # This value might be out of gammut and therefor invalid
     # use the "clamped" values which means they are within the gammut and therefor valid
     new_color_rgb_clamped = sRGBColor(
         new_color_rgb.clamped_rgb_r,
         new_color_rgb.clamped_rgb_g,
-        new_color_rgb.clamped_rgb_b,
-    )
+        new_color_rgb.clamped_rgb_b)
     return new_color_rgb_clamped.get_rgb_hex()
 
-
 def main():
+
     # List of names of color variables in mss code for which we will generate patterns
     color_names = {
-        "motorway-low-zoom",
-        "trunk-low-zoom",
-        "primary-low-zoom",
-        "motorway-fill",
-        "trunk-fill",
-        "primary-fill",
-        "secondary-fill",
-        "platform-fill",
-        "aeroway-fill",
-        "road-fill",
-        "pedestrian-fill",
-        "living-street-fill",
-        "raceway-fill",
-        "residential-fill",
-    }
+        'motorway-low-zoom',
+        'trunk-low-zoom',
+        'primary-low-zoom',
+        'motorway-fill',
+        'trunk-fill',
+        'primary-fill',
+        'secondary-fill',
+        'platform-fill',
+        'aeroway-fill',
+        'road-fill',
+        'pedestrian-fill',
+        'living-street-fill',
+        'raceway-fill',
+        'residential-fill'
+        }
 
     # List of names of mss files in which we search for color variables
-    file_names = {"style/roads.mss", "style/road-colors-generated.mss"}
+    file_names = {
+        'style/roads.mss',
+        'style/road-colors-generated.mss'
+        }
 
     # The value by which the original color is darkened for the pattern foreground
     # This value should always be negative.
@@ -139,23 +126,18 @@ def main():
         print("\nColor name: " + color_name)
         original_color_value = get_color_value_by_name(color_name, file_names)
         print("Plain color: " + original_color_value)
-        pattern_colors = [
-            change_lightness(original_color_value, darken),
-            change_lightness(original_color_value, darken * brighten_darken_ratio),
-        ]
+        pattern_colors = [change_lightness(original_color_value, darken),
+                          change_lightness(original_color_value, darken * brighten_darken_ratio)]
         print("Colors for pattern: " + str(pattern_colors))
         if pattern_colors:
-            with open("symbols/unpaved/unpaved.svg", "rt") as fin:
-                with open(
-                    "symbols/unpaved/unpaved_" + color_name + ".svg", "wt"
-                ) as fout:
+            with open('symbols/unpaved/unpaved.svg', 'rt') as fin:
+                with open('symbols/unpaved/unpaved_' + color_name + '.svg', 'wt') as fout:
                     for line in fin:
                         temp = line
-                        temp = temp.replace("#0000ff", pattern_colors[0])
-                        temp = temp.replace("fill:none", "fill:" + pattern_colors[1])
+                        temp = temp.replace('#0000ff', pattern_colors[0])
+                        temp = temp.replace('fill:none', 'fill:' + pattern_colors[1])
                         fout.write(temp)
-            print("Pattern file: " + "symbols/unpaved/unpaved_" + color_name + ".svg")
-
+            print("Pattern file: " + 'symbols/unpaved/unpaved_' + color_name + '.svg')
 
 if __name__ == "__main__":
     main()
