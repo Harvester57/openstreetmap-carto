@@ -15,7 +15,6 @@ jobs:
       with:
         python-version: 3.14
         pip-install: pyyaml colormath
-        cache: pip
     - name: Set up xmllint and CartoCSS
       run: sudo apt-get update -qq && sudo apt-get install -qq --no-install-recommends libxml2-utils nodejs-carto
     - name: Set up shell
