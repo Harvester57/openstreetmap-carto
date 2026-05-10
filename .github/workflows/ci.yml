@@ -4,7 +4,7 @@ on:
   - pull_request
 jobs:
   syntax:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6.0.2
     - uses: actions/setup-python@v6.2.0
@@ -51,7 +51,7 @@ jobs:
         scripts/indexes.py --null > /dev/null
   import:
     needs: [syntax]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6.0.2
     - name: Install osm2pgsql and database
