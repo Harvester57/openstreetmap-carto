@@ -6,11 +6,11 @@ jobs:
   syntax:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v6.0.2
+    - uses: actions/setup-python@v6.2.0
       with:
         python-version: 3.7
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6.4.0
       with:
         node-version: 16
     - name: Install python dependencies
@@ -53,7 +53,7 @@ jobs:
     needs: [syntax]
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6.0.2
     - name: Install osm2pgsql and database
       run: sudo apt-get update -qq && sudo apt-get install -qq --no-install-recommends osm2pgsql postgresql-14-postgis-3 gdal-bin
     - name: Wait for database
